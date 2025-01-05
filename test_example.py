@@ -17,6 +17,7 @@ def test_open_amazon(driver):
     driver.get("http://www.amazon.com.tr")
     assert "Amazon" in driver.title, "Amazon ana sayfası yüklenemedi!"
     print("Amazon ana sayfası başarıyla yüklendi.")
+    time.sleep(5)
 
 def test_accept_cookies(driver):
     try:
@@ -27,6 +28,7 @@ def test_accept_cookies(driver):
         print("Çerezler kabul edildi.")
     except Exception as e:
         print("Çerez kabul butonu bulunamadı veya tıklanamadı:", e)
+    time.sleep(5)
 
 def test_login(driver):
     email = "qualityasurance9@gmail.com"
