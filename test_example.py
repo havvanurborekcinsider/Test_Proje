@@ -17,7 +17,7 @@ def test_open_amazon(driver):
     driver.get("http://www.amazon.com.tr")
     assert "Amazon" in driver.title, "Amazon ana sayfası yüklenemedi!"
     print("Amazon ana sayfası başarıyla yüklendi.")
-    time.sleep(5)
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "twotabsearchtextbox")))
 
 def test_accept_cookies(driver):
     try:
@@ -28,7 +28,6 @@ def test_accept_cookies(driver):
         print("Çerezler kabul edildi.")
     except Exception as e:
         print("Çerez kabul butonu bulunamadı veya tıklanamadı:", e)
-    time.sleep(5)
 
 def test_login(driver):
     email = "qualityasurance9@gmail.com"
@@ -45,10 +44,14 @@ def test_login(driver):
     time.sleep(5)
 
 def test_search_for_product(driver):
-    search_box = driver.find_element(By.ID, "twotabsearchtextbox")
+    search_box = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "twotabsearchtextbox"))
+    )
     search_box.send_keys("samsung")
     search_box.send_keys(Keys.RETURN)
-    time.sleep(5)
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".s-main-slot"))
+    )
     print("‘Samsung’ için arama başarıyla yapıldı.")
 
 def test_verify_search_results(driver):
@@ -58,20 +61,9 @@ def test_verify_search_results(driver):
 def test_go_to_second_page(driver):
     try:
         target_xpath = '//*[@aria-label="2 sayfasına git"]'
-        while True:
-            try:
-                target_element = WebDriverWait(driver, 20).until(
-                    EC.presence_of_element_located((By.XPATH, target_xpath))
-                )
-                if target_element.is_displayed():
-                    print("2. sayfaya gitmek için buton bulundu!")
-                    break
-            except:
-                pass
-
-            driver.execute_script("window.scrollBy(0, 300);")
-            time.sleep(1)
-
+        target_element = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, target_xpath))
+        )
         target_element.click()
         print("2. sayfaya başarıyla geçildi.")
     except Exception as e:
@@ -90,23 +82,10 @@ def test_verify_page_navigation(driver):
 def test_click_third_product(driver):
     try:
         product_xpath = "(//div[contains(@class, 's-main-slot')]//div[contains(@class, 's-result-item')])[3]"
-        while True:
-            try:
-                product = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, product_xpath))
-                )
-                if product.is_displayed():
-                    print("3. Ürün bulundu!")
-                    break
-            except Exception as e:
-                print(f"Hata: {e}")
-                pass
-
-            driver.execute_script("window.scrollBy(0, 300);")
-            time.sleep(1)
-
+        product = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, product_xpath))
+        )
         product.click()
-        time.sleep(5)
         print("3. Ürüne başarıyla tıklandı.")
     except Exception as e:
         print("Ürün tıklama işleminde bir hata oluştu:", e)
@@ -118,7 +97,7 @@ def test_add_to_wishlist(driver):
             EC.element_to_be_clickable((By.XPATH, add_to_list_xpath))
         )
         add_to_list_button.click()
-        time.sleep(15)
+        time.sleep(5)
         print("Ürün başarıyla listeye eklendi.")
     except Exception as e:
         print("Listeye ekleme işleminde bir hata oluştu:", e)
@@ -144,19 +123,14 @@ def test_remove_product_from_wishlist(driver):
         delete_button = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "[name='submit.deleteItem']"))
         )
-
-        if delete_button.is_enabled():
-            delete_button.click()
-            print("Ürün başarıyla wishlist'ten silindi.")
-        else:
-            print("Ürün silinemedi: Buton tıklanamaz durumda.")
+        delete_button.click()
+        print("Ürün başarıyla wishlist'ten silindi.")
     except Exception as e:
         print(f"Bir hata oluştu: {e}")
 
 def test_verify_empty_wishlist(driver):
     driver.refresh()
     time.sleep(1)
-
     try:
         empty_wishlist_image = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//*[@id='no-items-section']/span/div[1]/img"))
